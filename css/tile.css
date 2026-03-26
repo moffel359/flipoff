@@ -1,108 +1,168 @@
-/* Tile Wrapper */
+/* ═══════════════════════════════════════════════════
+   Solari Dator 60 — realistic split-flap tile
+   ═══════════════════════════════════════════════════ */
+
+/* Tile housing — the dark frame visible in the seam gap */
 .tile {
   width: var(--tile-size);
   height: var(--tile-size);
-  perspective: 400px;
-  background: #111;
-  border-radius: 3px;
-}
-
-/* Inner Container (transform target) */
-.tile-inner {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-}
-
-/* Tile Faces */
-.tile-front,
-.tile-back {
-  position: absolute;
-  inset: 1px;
-  backface-visibility: hidden;
-  background: #222;
+  perspective: calc(var(--tile-size, 40px) * 6);
+  background: #0c0c0b;
   border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.5),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.02);
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── Shared half-tile geometry ── */
+
+.tile-upper,
+.tile-lower,
+.tile-flap-upper,
+.tile-flap-lower {
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  height: calc(50% - 2px); /* leaves a 2px gap for the seam */
   overflow: hidden;
 }
 
-.tile-front span,
-.tile-back span {
-  font-size: calc(var(--tile-size) * 0.52);
+/* ── Upper half — ambient top-light ── */
+
+.tile-upper,
+.tile-flap-upper {
+  top: 1px;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(
+    180deg,
+    #3a3a37 0%,
+    #323230 50%,
+    #2d2d2b 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ── Lower half — shadowed by upper flap ── */
+
+.tile-lower,
+.tile-flap-lower {
+  bottom: 1px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(
+    180deg,
+    #262624 0%,
+    #2a2a28 35%,
+    #2e2e2c 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(0, 0, 0, 0.18),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* ── Character typography ── */
+
+.tile-upper span,
+.tile-flap-upper span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--tile-size) * 0.66);
   font-weight: 700;
-  color: #FFFFFF;
+  color: #eae6de;
+  font-family: 'Arial Narrow', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  letter-spacing: -0.5px;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
-.tile-back {
-  transform: rotateX(180deg);
+.tile-lower span,
+.tile-flap-lower span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--tile-size) * 0.66);
+  font-weight: 700;
+  color: #e2ddd5;
+  font-family: 'Arial Narrow', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Horizontal Split Line — subtle mechanical seam */
-.tile-front::after,
-.tile-back::after {
+/* ── Animated flaps ── */
+
+.tile-flap-upper {
+  transform-origin: center bottom;
+  z-index: 2;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.tile-flap-lower {
+  transform-origin: center top;
+  z-index: 2;
+  transform: rotateX(90deg);
+}
+
+/* ── Dynamic shadow cast onto lower half during flip ── */
+
+.tile-shadow {
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 50%;
+  bottom: 1px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 45%);
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 0 0 2px 2px;
+}
+
+/* ── Seam — dark gap at midline ── */
+
+.tile::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  height: 1px;
-  background: rgba(0, 0, 0, 0.3);
+  top: calc(50% - 1px);
+  height: 2px;
+  background: #080808;
+  z-index: 10;
   pointer-events: none;
 }
 
-/* Highlight Sweep (metallic reflection during flip) */
-.tile-front::before,
-.tile-back::before {
+/* ── Static shadow below the seam (always visible) ── */
+
+.tile::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 45%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0.08) 55%,
-    transparent 100%
-  );
-  opacity: 0;
+  left: 1px;
+  right: 1px;
+  top: calc(50% + 1px);
+  height: calc(var(--tile-size) * 0.08);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, transparent 100%);
+  z-index: 5;
   pointer-events: none;
-  transition: opacity 0.15s;
 }
 
-/* 3D Flip Animation */
-.tile-inner.flipping {
-  animation: tileFlip var(--flip-duration, 300ms) ease-in-out forwards;
-}
-
-.tile-inner.flipping .tile-front::before,
-.tile-inner.flipping .tile-back::before {
-  opacity: 1;
-}
-
-@keyframes tileFlip {
-  0% {
-    transform: rotateX(0deg);
-  }
-  50% {
-    transform: rotateX(-90deg);
-  }
-  100% {
-    transform: rotateX(-180deg);
-  }
-}
-
-/* GPU compositing hint during animation only */
-.tile-inner.flipping,
-.tile.scrambling .tile-inner {
+/* GPU compositing */
+.tile-flap-upper,
+.tile-flap-lower {
   will-change: transform;
 }
