@@ -4,12 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Running Locally
 
+No build step, no npm, no dependencies. ES6 module imports require a local server — opening `index.html` directly via `file://` will not work.
+
+**With Node.js** (no installation needed beyond Node itself):
+```bash
+npx serve .
+# Open http://localhost:3000
+```
+
+**With Python:**
 ```bash
 python3 -m http.server 8080
 # Open http://localhost:8080
 ```
-
-No build step, no npm, no dependencies. Files can also be opened directly in a browser, though ES6 module imports require a server (not `file://`).
 
 ## Architecture
 
