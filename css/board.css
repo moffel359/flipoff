@@ -1,15 +1,14 @@
 /* Board Container */
 .board {
-  --tile-size: clamp(36px, 4.2vw, 62px);
-  --tile-gap: clamp(3px, 0.3vw, 5px);
+  --tile-size: 40px; /* fallback; overridden by JS */
 
   position: relative;
-  background: #1A1A1A;
+  background: #141413;
   border-radius: 16px;
   padding: 28px 48px 40px;
-  width: 100%;
   box-shadow:
-    0 -4px 20px rgba(0, 0, 0, 0.1);
+    0 -4px 20px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
   overflow: hidden;
 }
 
@@ -18,7 +17,7 @@
   display: grid;
   grid-template-columns: repeat(var(--grid-cols, 22), var(--tile-size));
   grid-template-rows: repeat(var(--grid-rows, 5), var(--tile-size));
-  gap: var(--tile-gap);
+  gap: 4px;
   justify-content: center;
 }
 
