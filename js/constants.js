@@ -1,9 +1,9 @@
 export const GRID_COLS = 22;
 export const GRID_ROWS = 5;
 
-export const SCRAMBLE_DURATION = 800;
-export const FLIP_DURATION = 300;
 export const STAGGER_DELAY = 25;
+// Upper bound for one full transition: max stagger + max flip time (Tile.js).
+// Update if HALF_FLIP, MAX_FLIPS, or GRID dimensions change.
 export const TOTAL_TRANSITION = 3800;
 export const MESSAGE_INTERVAL = 4000;
 

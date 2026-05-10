@@ -53,6 +53,8 @@ python3 -m http.server 8080
 | `M` | Toggle mute |
 | `Escape` | Exit fullscreen |
 
+The **N** button in the bottom-left corner of the board opens a shortcut overlay. Each entry is also a clickable button — useful on touchscreens or when a keyboard isn't available.
+
 ## How It Works
 
 Each tile consists of four layers: a static upper half, a static lower half, and two animated flaps that pivot at the horizontal midline. When a character changes, the upper flap folds backward (old character disappearing) while the lower flap falls into place (new character appearing) with a slight bounce. Only tiles whose content actually changes between messages animate — just like a real mechanical board.
@@ -65,7 +67,8 @@ A dynamic shadow overlay fades in on the lower half while the upper flap is in m
 
 Edit `js/constants.js` to change:
 - **Grid size** — `GRID_COLS` and `GRID_ROWS`
-- **Timing** — `SCRAMBLE_DURATION`, `STAGGER_DELAY`, `MESSAGE_INTERVAL`
+- **Timing** — `STAGGER_DELAY`, `MESSAGE_INTERVAL`, `TOTAL_TRANSITION`
+- **Flip speed** — `HALF_FLIP`, `MIN_FLIPS`, `MAX_FLIPS` in `js/Tile.js` (if you change these, update `TOTAL_TRANSITION` in `constants.js` accordingly)
 - **Colors** — `SCRAMBLE_COLORS` and `ACCENT_COLORS`
 - **Default messages** — the `MESSAGES` array (these are the initial rotation pool)
 

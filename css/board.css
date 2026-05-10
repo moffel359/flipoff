@@ -89,10 +89,25 @@
   display: block;
 }
 
-.shortcuts-overlay div {
+.shortcuts-overlay button {
   display: flex;
   justify-content: space-between;
-  padding: 4px 0;
+  align-items: center;
+  width: 100%;
+  padding: 5px 4px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.shortcuts-overlay button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 1);
 }
 
 .shortcuts-overlay kbd {

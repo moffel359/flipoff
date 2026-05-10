@@ -1,11 +1,12 @@
 import { Tile } from './Tile.js';
 import {
-  GRID_COLS, GRID_ROWS, STAGGER_DELAY, SCRAMBLE_DURATION,
+  GRID_COLS, GRID_ROWS, STAGGER_DELAY,
   TOTAL_TRANSITION, ACCENT_COLORS
 } from './constants.js';
 
 export class Board {
-  constructor(containerEl, soundEngine) {
+  constructor(containerEl, soundEngine, actions = {}) {
+    this._actions = actions;
     this.cols = GRID_COLS;
     this.rows = GRID_ROWS;
     this.soundEngine = soundEngine;
@@ -64,11 +65,18 @@ export class Board {
     const overlay = document.createElement('div');
     overlay.className = 'shortcuts-overlay';
     overlay.innerHTML = `
-      <div><span>Next message</span><kbd>Enter</kbd></div>
-      <div><span>Previous</span><kbd>\u2190</kbd></div>
-      <div><span>Fullscreen</span><kbd>F</kbd></div>
-      <div><span>Mute</span><kbd>M</kbd></div>
+      <button data-action="next"><span>Next message</span><kbd>Enter</kbd></button>
+      <button data-action="prev"><span>Previous</span><kbd>\u2190</kbd></button>
+      <button data-action="fullscreen"><span>Fullscreen</span><kbd>F</kbd></button>
+      <button data-action="mute"><span>Mute</span><kbd>M</kbd></button>
     `;
+    overlay.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      e.stopPropagation();
+      this._actions[btn.dataset.action]?.();
+      overlay.classList.remove('visible');
+    });
     this.boardEl.appendChild(overlay);
 
     containerEl.appendChild(this.boardEl);

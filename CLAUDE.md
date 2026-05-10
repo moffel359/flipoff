@@ -24,13 +24,13 @@ FlipOff is a split-flap display emulator — pure vanilla HTML/CSS/JS with ES6 m
 
 **Module responsibilities:**
 
-- `js/constants.js` — all configuration: grid dimensions (22×5), animation timing, character set, scramble/accent colors, hardcoded messages
-- `js/Board.js` — grid manager; builds DOM, formats messages to grid, orchestrates staggered tile animations, cycles accent colors
-- `js/Tile.js` — individual tile; handles scramble animation (stagger → random chars → color cycle → final 3D flip)
+- `js/constants.js` — grid dimensions (22×5), stagger/interval timing, character set, colors, default messages; `SCRAMBLE_DURATION`/`FLIP_DURATION` were removed (unused after animation rewrite)
+- `js/Board.js` — grid manager; builds DOM, formats messages to grid, orchestrates staggered tile animations, cycles accent colors; accepts an `actions` object `{ next, prev, mute, fullscreen }` for the keyboard-hint overlay buttons
+- `js/Tile.js` — individual tile; flip timing constants (`HALF_FLIP`, `MIN_FLIPS`, `MAX_FLIPS`) live here; if changed, update `TOTAL_TRANSITION` in `constants.js` accordingly
 - `js/SoundEngine.js` — Web Audio API wrapper; plays one clip per message transition using base64-embedded audio from `flapAudio.js`
-- `js/MessageRotator.js` — auto-rotates through messages; resets timer on manual navigation
+- `js/MessageRotator.js` — auto-rotates through messages; manual `next()`/`prev()` resume auto-rotation if paused and fire `_onResume` callback for UI sync
 - `js/KeyboardController.js` — keyboard shortcuts: Enter/Space (next), ←/→ (prev/next), F (fullscreen), M (mute), Escape (exit fullscreen)
-- `js/main.js` — entry point; wires all modules, handles browser autoplay policy
+- `js/main.js` — entry point; wires all modules via a lazy `actions` object, handles browser autoplay policy; calls `fitBoard()` once before `rotator.start()` to avoid initial layout flash
 
 **CSS files:** `reset.css`, `layout.css`, `board.css`, `tile.css`, `responsive.css`
 
@@ -38,6 +38,9 @@ FlipOff is a split-flap display emulator — pure vanilla HTML/CSS/JS with ES6 m
 
 - **Transition gating:** `Board.isTransitioning` prevents overlapping animations — always check before triggering a message change
 - **Change detection:** `Board.displayMessage()` compares new grid against previous state; only changed tiles scramble
-- **Tile scramble sequence:** stagger delay → 10–13 rapid random characters (70ms each) → color cycling → final character with 3D flip keyframe
+- **Tile flip sequence:** stagger delay → `MIN_FLIPS`–`MAX_FLIPS` rapid character flips (`HALF_FLIP` ms each) → final character settles with bounce ease
 - **Single audio clip:** one sound plays per message transition regardless of how many tiles change
-- **All customization:** edit `js/constants.js` to change grid size, timing, colors, or messages
+- **Overlay actions:** the "N" keyboard-hint button opens a shortcuts overlay whose entries are real buttons; actions are wired via a lazy `actions` object in `main.js` so `Board` is created before `MessageRotator` without circular dependencies
+- **Auto-resume on navigate:** `MessageRotator.next()`/`prev()` clear `_paused` and fire `_onResume?.()` — the panel's Auto button stays in sync
+- **Board sizing:** `fitBoard()` runs synchronously before `rotator.start()` to set `--tile-size` before the first message renders; `ResizeObserver` keeps it live thereafter
+- **All customization:** edit `js/constants.js` for grid size, timing, colors, or messages; flip speed in `js/Tile.js`

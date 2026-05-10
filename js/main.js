@@ -193,9 +193,12 @@ function buildPanel(panelEl, rotator) {
 document.addEventListener('DOMContentLoaded', () => {
   const boardContainer = document.getElementById('board-container');
   const soundEngine = new SoundEngine();
-  const board = new Board(boardContainer, soundEngine);
+
+  // Lazy action handlers — populated after rotator is created
+  const actions = {};
+  const board = new Board(boardContainer, soundEngine, actions);
   const rotator = new MessageRotator(board);
-  new KeyboardController(rotator, soundEngine);
+  const keyboard = new KeyboardController(rotator, soundEngine);
 
   // Audio: initialize on first user interaction (browser autoplay policy)
   let audioInitialized = false;
@@ -210,8 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', initAudio);
   document.addEventListener('keydown', initAudio);
 
-  rotator.start();
-
   // Volume button
   const volumeBtn = document.getElementById('volume-btn');
   volumeBtn?.addEventListener('click', () => {
@@ -220,7 +221,18 @@ document.addEventListener('DOMContentLoaded', () => {
     volumeBtn.classList.toggle('muted', muted);
   });
 
-  // Dynamic board sizing
+  // Wire overlay actions
+  actions.next = () => rotator.next();
+  actions.prev = () => rotator.prev();
+  actions.mute = () => {
+    initAudio();
+    const muted = soundEngine.toggleMute();
+    volumeBtn?.classList.toggle('muted', muted);
+  };
+  actions.fullscreen = () => keyboard._toggleFullscreen();
+
+  // Dynamic board sizing — fit before first message to avoid flash
+  fitBoard(board.boardEl, boardContainer);
   const resizeObserver = new ResizeObserver(() => {
     fitBoard(board.boardEl, boardContainer);
   });
@@ -230,7 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => fitBoard(board.boardEl, boardContainer));
   });
 
+  rotator.start();
+
   // Message manager panel
   const panelEl = document.getElementById('input-panel');
-  buildPanel(panelEl, rotator);
+  const { autoBtn } = buildPanel(panelEl, rotator);
+  rotator._onResume = () => autoBtn.classList.add('active');
 });

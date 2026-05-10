@@ -43,14 +43,15 @@ export class MessageRotator {
     }
   }
 
-  // Manual navigation — does not affect the time counter
   next() {
+    if (this._paused) { this._paused = false; this._onResume?.(); }
     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
     this.board.displayMessage(this.messages[this.currentIndex]);
     this._resetAutoRotation();
   }
 
   prev() {
+    if (this._paused) { this._paused = false; this._onResume?.(); }
     this.currentIndex = (this.currentIndex - 1 + this.messages.length) % this.messages.length;
     this.board.displayMessage(this.messages[this.currentIndex]);
     this._resetAutoRotation();
